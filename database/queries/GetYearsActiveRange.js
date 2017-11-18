@@ -6,4 +6,8 @@ const Artist = require('../models/artist');
  * containing the min and max yearsActive, like { min: 0, max: 14 }.
  */
 module.exports = () => {
+  return Artist.getMinAndMaxYearsActive().then(minMaxActive => {
+    const { min, max } = minMaxActive[0];
+    return { min, max };
+  });
 };

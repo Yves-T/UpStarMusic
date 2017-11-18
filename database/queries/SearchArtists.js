@@ -9,4 +9,31 @@ const Artist = require('../models/artist');
  * @return {promise} A promise that resolves with the artists, count, offset, and limit
  */
 module.exports = (criteria, sortProperty, offset = 0, limit = 20) => {
+  const { name } = criteria;
+  let { age, yearsActive } = criteria;
+
+  if (!yearsActive) {
+    yearsActive = { min: 0, max: 100 };
+  }
+
+  if (!age) {
+    age = { min: 0, max: 100 };
+  }
+
+  const countPromise = Artist.countSearchResults(yearsActive, age, name, parseInt(limit, 10));
+  const yearsActivePromise = Artist.getYearsActiveInRange(
+    yearsActive,
+    age,
+    name,
+    parseInt(limit, 10)
+  );
+
+  return Promise.all([countPromise, yearsActivePromise]).then(result => {
+    return {
+      all: result[1],
+      count: result[0][0].searchResults,
+      offset,
+      limit
+    };
+  });
 };
